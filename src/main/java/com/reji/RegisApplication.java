@@ -1,6 +1,7 @@
 package com.reji;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,5 +19,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class RegisApplication {
     public static void main(String[] args) {
         SpringApplication.run(RegisApplication.class,args);
+
     }
 }
