@@ -40,7 +40,7 @@ public class UserController {
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
             session.setAttribute(phone, code);
             log.error("{}", code);
-            return R.success("手机验证码短信发送成功");
+            return R.success(code);
         }
         return R.error("短信发送失败");
 

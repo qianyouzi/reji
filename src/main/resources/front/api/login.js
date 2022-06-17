@@ -19,4 +19,10 @@ function sendMsg(data) {
         data
     })
 }
-  
+function codeApi(data) {
+    return $axios({
+        'url': '/user/sendMsg',
+        'method': 'post',
+        data
+    })
+}
