@@ -6,11 +6,13 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author 74545
  */
+@EnableAspectJAutoProxy
 @EnableTransactionManagement //开启事务管理
 @ServletComponentScan
 @MapperScan("com.reji.dao")

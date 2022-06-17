@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * 订单处理
+ * @author 74545
  */
 @RestController
 @Slf4j
@@ -34,9 +35,6 @@ public class OrderController {
 
     @Autowired
     private OrdersService ordersService;
-
-    @Autowired
-    private OrderDetailService orderDetailService;
 
     /**
      * 提交订单
@@ -60,7 +58,6 @@ public class OrderController {
             begin = LocalDateTime.parse(beginTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             end = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
-        OrderDetail orderDetail = new OrderDetail();
         Page<Orders> ordersPage = new Page<>(page, pageSize);
         LambdaQueryWrapper<Orders> ordersLambdaQueryWrapper = new LambdaQueryWrapper<>();
         ordersLambdaQueryWrapper.between(beginTime != null && endTime != null, Orders::getOrderTime, begin, end);

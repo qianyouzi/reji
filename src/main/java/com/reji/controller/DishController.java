@@ -14,6 +14,8 @@ import com.reji.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Session;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -46,7 +48,6 @@ public class DishController {
     //菜品分类
     @GetMapping("/page")
     public R page(Integer page, Integer pageSize, String name) {
-        log.error(page + pageSize + name);
         //分页查询器
         Page<Dish> pag = new Page<>(page, pageSize);
         Page<DishDto> dishDtoPage = new Page<>();
@@ -121,6 +122,7 @@ public class DishController {
     //删除菜品
     @DeleteMapping
     public R delete(@RequestParam List<Long> ids) {
+
         dishService.deleteWithFlaavor(ids);
         return R.success("删除成功");
     }

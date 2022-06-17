@@ -1,6 +1,8 @@
 package com.reji.bean;
 
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ public class ShoppingCart implements Serializable {
     private Integer number;
 
     //金额
+    @Version
     private BigDecimal amount;
 
     //图片

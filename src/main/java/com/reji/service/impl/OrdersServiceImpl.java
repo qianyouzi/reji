@@ -146,8 +146,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersDao, Orders> implements
         }).collect(Collectors.toList());
         ordersDtoPage.setRecords(collect);
         return ordersDtoPage;
-
-
     }
 
     /**

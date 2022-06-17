@@ -12,15 +12,18 @@ import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * 全局异常处理器
+ * @author 74545
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final String SQLEXCEPTION = "Duplicate";
+
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public R sqlException(SQLIntegrityConstraintViolationException sql) {
         log.error("全局异常处理器捕获异常:{}", sql.getMessage());
-        if (sql.getMessage().contains("Duplicate")) {
+        if (sql.getMessage().contains(SQLEXCEPTION)) {
             String[] sp = sql.getMessage().split(" ");
             String msg = sp[2] + "已存在";
             return R.error(msg);
@@ -29,7 +32,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomException.class)
-    public R runException(CustomException customException){
+    public R runException(CustomException customException) {
         return R.error(customException.getMessage());
     }
 }

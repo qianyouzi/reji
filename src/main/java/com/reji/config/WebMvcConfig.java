@@ -1,12 +1,17 @@
 package com.reji.config;
 
+import com.reji.filter.ProjectInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -19,6 +24,21 @@ import java.util.List;
  */
 public class WebMvcConfig extends WebMvcConfigurationSupport {
 
+    @Autowired
+    private ProjectInterceptor projectInterceptor;
+
+    /**
+     * 配置拦截器
+     * @param registry
+     */
+    @Override
+    protected void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(projectInterceptor).addPathPatterns("/**");
+    }
+
+    /**
+     * 配置静态资源访问路径
+     */
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("访问了静态资源");
@@ -35,10 +55,10 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Override
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         log.info("扩展消息转换器...");
-        MappingJackson2HttpMessageConverter mapp = new MappingJackson2HttpMessageConverter();
-        mapp.setObjectMapper(new JacksonObjectMapper());
+        MappingJackson2HttpMessageConverter map = new MappingJackson2HttpMessageConverter();
+        map.setObjectMapper(new JacksonObjectMapper());
         //通过索引,把我们自己的消息转换器放在前面
-        converters.add(0,mapp);
+        converters.add(0,map);
 
     }
 }

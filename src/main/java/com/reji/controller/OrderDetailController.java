@@ -14,6 +14,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/orderDetail")
 public class OrderDetailController {
 
-    @Autowired
-    private OrderDetailService orderDetailService;
 }
