@@ -29,7 +29,6 @@ public class EmployeeController {
     @PostMapping("/login")
     public R login(@RequestBody Employee emp, HttpSession session) {
         //接收用户登录的用户名和密码 大括号表示占位符
-        log.info("登录员工信息:{}", emp);
         String password = DigestUtils.md5DigestAsHex(emp.getPassword().getBytes());
         //根据用户名查询数据库
         LambdaQueryWrapper<Employee> lw = new LambdaQueryWrapper<>();
