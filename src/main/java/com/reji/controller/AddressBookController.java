@@ -30,6 +30,7 @@ public class AddressBookController {
     public R save(@RequestBody AddressBook addressBook) {
         addressBook.setUserId(BaseContext.getCurrentId());
         addressBookService.save(addressBook);
+        System.out.println("新增了");
         return R.success(addressBook);
     }
 
