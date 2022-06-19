@@ -50,7 +50,8 @@ public class CommonController {
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response) {
         try {
-            FileInputStream fileInputStream = new FileInputStream(new File(basePath + name));
+            File file = new File(basePath + name);
+            FileInputStream fileInputStream = new FileInputStream(file);
             response.setContentType("image/jpeg");
             ServletOutputStream outputStream = response.getOutputStream();
             int len = 0;

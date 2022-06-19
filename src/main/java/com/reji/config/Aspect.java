@@ -1,14 +1,10 @@
 package com.reji.config;
 
-import com.reji.bean.R;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import sun.util.xml.PlatformXmlPropertiesProvider;
 
 @Slf4j
 @org.aspectj.lang.annotation.Aspect
