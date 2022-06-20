@@ -16,9 +16,7 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
     banner: off
-    #设置服务器文件上传保存位置
-reggie:
-  path: reji\src\main\resources\backend\img\
+
 
 
 
@@ -37,6 +35,9 @@ spring:
   config:
     activate:
       on-profile: pro
+    #设置服务器文件上传保存位置
+reggie:
+  path: E:\Study\Regis\reji\src\main\resources\backend\img\
 
 ---
 server:
@@ -53,3 +54,6 @@ spring:
   config:
     activate:
       on-profile: dev
+    #设置服务器文件上传保存位置
+reggie:
+  path: /usr/local/rejiimg/
