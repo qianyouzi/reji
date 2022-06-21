@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -45,6 +47,7 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping
     public R add(@RequestBody SetmealDto setmealDto) {
         setmealService.saveWithDish(setmealDto);
@@ -81,6 +84,7 @@ public class SetmealController {
     /**
      * 套餐批量和单个删除
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @DeleteMapping
     public R delete(@RequestParam List<Long> ids){
         setmealService.removeWithDish(ids);
@@ -90,6 +94,7 @@ public class SetmealController {
     /**
      * 查询套餐
      */
+    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId+'_'+#setmeal.status")
     @GetMapping("/list")
     public R list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> set = new LambdaQueryWrapper<>();
@@ -103,6 +108,7 @@ public class SetmealController {
      * 套餐批量起售
      * 套餐批量停售
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping("/status/{a}")
     public R status(@PathVariable Integer a,@RequestParam List<Long> ids){
         LambdaUpdateWrapper<Setmeal> setmealLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
@@ -123,6 +129,7 @@ public class SetmealController {
     /**
      * 修改套餐
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PutMapping
     public R update(@RequestBody SetmealDto setmealDto){
         setmealService.updateSetmeal(setmealDto);

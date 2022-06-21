@@ -1,29 +1,28 @@
-import com.alibaba.fastjson.util.IOUtils;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.reji.bean.Dish;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
-import org.assertj.core.util.Lists;
+
+import com.reji.RegisApplication;
+import com.reji.bean.User;
 import org.junit.jupiter.api.Test;
-import org.slf4j.MDC;
-import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.Assert;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.SerializationUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.redis.core.*;
 
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+@SpringBootTest(classes = RegisApplication.class)
 public class demo {
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    @CachePut(value = "",key = "#user.id")
     @Test
-    public void Demo(){
+    public void Redis(User user){
 
     }
 }

@@ -8,9 +8,15 @@ import com.reji.service.AddressBookService;
 import com.reji.utils.BaseContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 地址管理
@@ -23,14 +29,17 @@ public class AddressBookController {
     @Autowired
     private AddressBookService addressBookService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 新增
      */
+    @CacheEvict(value = "AddressBook", key = "'list_'+#session.getAttribute('user')")
     @PostMapping
-    public R save(@RequestBody AddressBook addressBook) {
+    public R save(@RequestBody AddressBook addressBook, HttpSession session) {
         addressBook.setUserId(BaseContext.getCurrentId());
         addressBookService.save(addressBook);
-        System.out.println("新增了");
         return R.success(addressBook);
     }
 
@@ -38,12 +47,15 @@ public class AddressBookController {
      * 设置默认地址
      */
     @PutMapping("default")
-    public R<AddressBook> setDefault(@RequestBody AddressBook addressBook) {
+    public R<AddressBook> setDefault(@RequestBody AddressBook addressBook, HttpSession session) {
+        Set user = redisTemplate.keys("*" + session.getAttribute("user") + "*");
+        if (user != null) {
+            redisTemplate.delete(user);
+        }
         LambdaUpdateWrapper<AddressBook> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
         wrapper.set(AddressBook::getIsDefault, 0);
         addressBookService.update(wrapper);
-
         addressBook.setIsDefault(1);
         addressBookService.updateById(addressBook);
         return R.success(addressBook);
@@ -53,7 +65,8 @@ public class AddressBookController {
      * 根据id查询地址
      */
     @GetMapping("/{id}")
-    public R get(@PathVariable Long id) {
+    @Cacheable(value = "AddressBook", key = "'list_'+#session.getAttribute('user')+#id")
+    public R get(@PathVariable Long id, HttpSession session) {
         AddressBook addressBook = addressBookService.getById(id);
         if (addressBook != null) {
             return R.success(addressBook);
@@ -65,8 +78,9 @@ public class AddressBookController {
     /**
      * 查询默认地址
      */
+    @Cacheable(value = "AddressBook", key = "'default_'+#session.getAttribute('user')")
     @GetMapping("default")
-    public R<AddressBook> getDefault() {
+    public R<AddressBook> getDefault(HttpSession session) {
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());
         queryWrapper.eq(AddressBook::getIsDefault, 1);
@@ -84,12 +98,10 @@ public class AddressBookController {
     /**
      * 查询指定用户的全部地址
      */
+    @Cacheable(value = "AddressBook", key = "'list_'+#session.getAttribute('user')")
     @GetMapping("/list")
-    public R<List<AddressBook>> list(AddressBook addressBook) {
+    public R<List<AddressBook>> list(AddressBook addressBook, HttpSession session) {
         addressBook.setUserId(BaseContext.getCurrentId());
-        log.error("{}",BaseContext.getCurrentId());
-        log.info("addressBook:{}", addressBook);
-
         //条件构造器
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(null != addressBook.getUserId(), AddressBook::getUserId, addressBook.getUserId());
@@ -103,7 +115,11 @@ public class AddressBookController {
      * 修改地址
      */
     @PutMapping
-    public R update (@RequestBody AddressBook addressBook){
+    public R update(@RequestBody AddressBook addressBook, HttpSession session) {
+        Set user = redisTemplate.keys("*"+"list_" + session.getAttribute("user") + "*");
+        if (user != null) {
+            redisTemplate.delete(user);
+        }
         addressBookService.updateById(addressBook);
         return R.success("修改成功");
     }
@@ -112,7 +128,11 @@ public class AddressBookController {
      * 删除地址
      */
     @DeleteMapping
-    public R delete(Long ids){
+    public R delete(Long ids, HttpSession session) {
+        Set user = redisTemplate.keys("*"+"list_" + session.getAttribute("user") + "*");
+        if (user != null) {
+            redisTemplate.delete(user);
+        }
         addressBookService.removeById(ids);
         return R.success("删除成功");
     }

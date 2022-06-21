@@ -7,6 +7,8 @@ import com.reji.bean.R;
 import com.reji.service.impl.CategoryServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +24,7 @@ public class CategoryController {
     /**
      * 增加分类
      */
+    @CacheEvict(value = "Category",allEntries = true)
     @PostMapping
     public R add(@RequestBody Category category) {
         categoryService.save(category);
@@ -31,6 +34,7 @@ public class CategoryController {
     /**
      * 分页查询分类
      */
+    @Cacheable(value = "Category",key = "'Category'+#page+'_'+#pageSize")
     @GetMapping("/page")
     public R selectPage(Integer page, Integer pageSize) {
         Page<Category> pg = new Page<>(page, pageSize);
@@ -43,6 +47,7 @@ public class CategoryController {
     /**
      * 删除分类
      */
+    @CacheEvict(value = "Category",allEntries = true)
     @DeleteMapping
     public R deleteById(Long ids) {
         categoryService.remove(ids);
@@ -52,6 +57,7 @@ public class CategoryController {
     /**
      * 修改分类
      */
+    @CacheEvict(value = "Category",allEntries = true)
     @PutMapping
     public R update(@RequestBody Category category) {
         categoryService.updateById(category);
@@ -61,6 +67,7 @@ public class CategoryController {
     /**
      * 获取菜品分类数据
      */
+    @Cacheable(value = "Category",key = "'Category'+#category.type")
     @GetMapping("/list")
     public R list(Category category) {
         //设置条件

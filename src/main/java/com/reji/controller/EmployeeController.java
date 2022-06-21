@@ -8,6 +8,8 @@ import com.reji.service.impl.EmployeeServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +61,7 @@ public class EmployeeController {
     }
 
     //管理端添加员工
+    @CacheEvict(value = "employee",allEntries = true)
     @PostMapping
     public R add(@RequestBody Employee employee, HttpSession session) {
         employee.setStatus(1);
@@ -70,6 +73,7 @@ public class EmployeeController {
     }
 
     //分页查询显示所有员工
+    @Cacheable(value = "employee",key = "#page+'_'+#pageSize+'_'+#name")
     @GetMapping("/page")
     public R selectPage(Integer page, Integer pageSize, String name) {
         Page<Employee> pg = new Page<>(page, pageSize);
@@ -81,6 +85,7 @@ public class EmployeeController {
     }
 
     //修改员工状态
+    @CacheEvict(value = "employee",allEntries = true)
     @PutMapping
     public R update(HttpSession session,@RequestBody Employee employee){
         log.info(employee.toString());

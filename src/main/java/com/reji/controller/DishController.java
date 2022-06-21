@@ -1,5 +1,6 @@
 package com.reji.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,12 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.server.Session;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -38,9 +41,15 @@ public class DishController {
     @Autowired
     private DishFlavorService dishFlavorService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     //新增菜品
     @PostMapping
     public R add(@RequestBody DishDto dishDto) {
+        //清理保存菜品的缓存
+        String key = "dish_"+dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key);
         dishService.saveWithFlavor(dishDto);
         return R.success("新增菜品成功");
     }
@@ -85,6 +94,9 @@ public class DishController {
     //修改菜品
     @PutMapping
     public R update(@RequestBody DishDto dishDto) {
+        //清理修改菜品的缓存
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
         dishService.updateWithFlaavor(dishDto);
         return R.success("修改菜品成功");
     }
@@ -92,13 +104,21 @@ public class DishController {
     //根据分类id查询菜品列表
     @GetMapping("/list")
     public R list(Dish dish) {
+        List<DishDto> dishDtoList = null;
+        String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
+        //从redis数据库中获取指定菜品,如果有就直接返回,没有就执行到最后然后保存到redis数据库中
+        String dis = (String) redisTemplate.opsForValue().get(key);
+        if (dis != null) {
+            dishDtoList = JSON.parseObject(dis, List.class);
+            return R.success(dishDtoList);
+        }
         //设置条件,查询菜品列表
         LambdaQueryWrapper<Dish> dd = new LambdaQueryWrapper<>();
-        dd.eq(dish.getCategoryId()!=null,Dish::getCategoryId, dish.getCategoryId());
+        dd.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId());
         dd.eq(Dish::getStatus, 1);
         dd.orderByAsc(Dish::getSort).orderByDesc(Dish::getCreateTime);
         List<Dish> list = dishService.list(dd);
-        List<DishDto> collect = list.stream().map(item -> {
+        dishDtoList = list.stream().map(item -> {
             DishDto dishDto = new DishDto();
             BeanUtils.copyProperties(item, dishDto);
             //根据id查询分类对象
@@ -116,13 +136,13 @@ public class DishController {
             dishDto.setFlavors(list1);
             return dishDto;
         }).collect(Collectors.toList());
-        return R.success(collect);
+        redisTemplate.opsForValue().set(key, JSON.toJSONString(dishDtoList), 60, TimeUnit.MINUTES);
+        return R.success(dishDtoList);
     }
 
     //删除菜品
     @DeleteMapping
     public R delete(@RequestParam List<Long> ids) {
-
         dishService.deleteWithFlaavor(ids);
         return R.success("删除成功");
     }
@@ -131,9 +151,9 @@ public class DishController {
      * 批量起售,批量停售
      */
     @PostMapping("/status/{a}")
-    public R state(@PathVariable Integer a,@RequestParam List<Long> ids){
+    public R state(@PathVariable Integer a, @RequestParam List<Long> ids) {
         LambdaUpdateWrapper<Dish> dishLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-        dishLambdaUpdateWrapper.in(Dish::getId,ids).set(Dish::getStatus,a).set(Dish::getUpdateTime, LocalDateTime.now());
+        dishLambdaUpdateWrapper.in(Dish::getId, ids).set(Dish::getStatus, a).set(Dish::getUpdateTime, LocalDateTime.now());
         dishService.update(dishLambdaUpdateWrapper);
         return R.success("修改成功");
     }
