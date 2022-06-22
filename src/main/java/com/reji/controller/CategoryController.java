@@ -24,7 +24,7 @@ public class CategoryController {
     /**
      * 增加分类
      */
-    @CacheEvict(value = "Category",allEntries = true)
+    @CacheEvict(value = "Category", allEntries = true)
     @PostMapping
     public R add(@RequestBody Category category) {
         categoryService.save(category);
@@ -34,7 +34,7 @@ public class CategoryController {
     /**
      * 分页查询分类
      */
-    @Cacheable(value = "Category",key = "'Category'+#page+'_'+#pageSize")
+    @Cacheable(value = "Category", key = "'Category'+#page+'_'+#pageSize", unless = "#result.data==null")
     @GetMapping("/page")
     public R selectPage(Integer page, Integer pageSize) {
         Page<Category> pg = new Page<>(page, pageSize);
@@ -47,7 +47,7 @@ public class CategoryController {
     /**
      * 删除分类
      */
-    @CacheEvict(value = "Category",allEntries = true)
+    @CacheEvict(value = "Category", allEntries = true)
     @DeleteMapping
     public R deleteById(Long ids) {
         categoryService.remove(ids);
@@ -57,7 +57,7 @@ public class CategoryController {
     /**
      * 修改分类
      */
-    @CacheEvict(value = "Category",allEntries = true)
+    @CacheEvict(value = "Category", allEntries = true)
     @PutMapping
     public R update(@RequestBody Category category) {
         categoryService.updateById(category);
@@ -67,7 +67,7 @@ public class CategoryController {
     /**
      * 获取菜品分类数据
      */
-    @Cacheable(value = "Category",key = "'Category'+#category.type")
+    @Cacheable(value = "Category", key = "'Category'+#category.type", unless = "#result.data==null")
     @GetMapping("/list")
     public R list(Category category) {
         //设置条件

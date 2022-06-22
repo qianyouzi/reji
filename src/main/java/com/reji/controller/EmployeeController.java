@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +74,7 @@ public class EmployeeController {
     }
 
     //分页查询显示所有员工
-    @Cacheable(value = "employee",key = "#page+'_'+#pageSize+'_'+#name")
+    @Cacheable(value = "employee",key = "#page+'_'+#pageSize+'_'+#name",unless = "#result.data==null")
     @GetMapping("/page")
     public R selectPage(Integer page, Integer pageSize, String name) {
         Page<Employee> pg = new Page<>(page, pageSize);

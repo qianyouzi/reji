@@ -94,7 +94,7 @@ public class SetmealController {
     /**
      * 查询套餐
      */
-    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId+'_'+#setmeal.status")
+    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId+'_'+#setmeal.status",unless = "#result.data==null")
     @GetMapping("/list")
     public R list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> set = new LambdaQueryWrapper<>();

@@ -65,7 +65,7 @@ public class AddressBookController {
      * 根据id查询地址
      */
     @GetMapping("/{id}")
-    @Cacheable(value = "AddressBook", key = "'list_'+#session.getAttribute('user')+#id")
+    @Cacheable(value = "AddressBook", key = "'list_'+#session.getAttribute('user')+#id", unless = "#result.data==null")
     public R get(@PathVariable Long id, HttpSession session) {
         AddressBook addressBook = addressBookService.getById(id);
         if (addressBook != null) {
@@ -78,7 +78,7 @@ public class AddressBookController {
     /**
      * 查询默认地址
      */
-    @Cacheable(value = "AddressBook", key = "'default_'+#session.getAttribute('user')")
+    @Cacheable(value = "AddressBook", key = "'default_'+#session.getAttribute('user')", unless = "#result.data==null")
     @GetMapping("default")
     public R<AddressBook> getDefault(HttpSession session) {
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
@@ -98,7 +98,7 @@ public class AddressBookController {
     /**
      * 查询指定用户的全部地址
      */
-    @Cacheable(value = "AddressBook", key = "'list_'+#session.getAttribute('user')")
+    @Cacheable(value = "AddressBook", key = "'list_'+#session.getAttribute('user')", unless = "#result.data==null")
     @GetMapping("/list")
     public R<List<AddressBook>> list(AddressBook addressBook, HttpSession session) {
         addressBook.setUserId(BaseContext.getCurrentId());
@@ -116,7 +116,7 @@ public class AddressBookController {
      */
     @PutMapping
     public R update(@RequestBody AddressBook addressBook, HttpSession session) {
-        Set user = redisTemplate.keys("*"+"list_" + session.getAttribute("user") + "*");
+        Set user = redisTemplate.keys("*" + "list_" + session.getAttribute("user") + "*");
         if (user != null) {
             redisTemplate.delete(user);
         }
@@ -129,7 +129,7 @@ public class AddressBookController {
      */
     @DeleteMapping
     public R delete(Long ids, HttpSession session) {
-        Set user = redisTemplate.keys("*"+"list_" + session.getAttribute("user") + "*");
+        Set user = redisTemplate.keys("*" + "list_" + session.getAttribute("user") + "*");
         if (user != null) {
             redisTemplate.delete(user);
         }
