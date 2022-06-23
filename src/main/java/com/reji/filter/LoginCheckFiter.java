@@ -43,7 +43,12 @@ public class LoginCheckFiter implements Filter {
                 "/employee/logout",
                 "/common/**",
                 "/user/sendMsg",
-                "/user/login"
+                "/user/login",
+                /*配置Knife4j需要放行的路径*/
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
         //遍历不需要通过拦截的路径地址,和当前请求地址进行匹配
         boolean flag = false;

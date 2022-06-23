@@ -9,6 +9,9 @@ import com.reji.service.CategoryService;
 import com.reji.service.DishService;
 import com.reji.service.SetmealDishService;
 import com.reji.service.SetmealService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +31,7 @@ import java.util.stream.Stream;
 @Slf4j
 @RequestMapping("/setmeal")
 @RestController
+@Api(tags = "套餐相关接口")
 public class SetmealController {
 
     @Autowired
@@ -47,6 +51,7 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
+    @ApiOperation(value = "新增套餐接口")
     @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping
     public R add(@RequestBody SetmealDto setmealDto) {
@@ -57,6 +62,7 @@ public class SetmealController {
     /**
      * 套餐分页查询
      */
+    @ApiOperation(value = "套餐分页查询接口")
     @GetMapping("/page")
     public R page(int page, int pageSize, String name) {
         Page<Setmeal> setmealPage = new Page<>(page, pageSize);
@@ -86,6 +92,7 @@ public class SetmealController {
      */
     @CacheEvict(value = "setmealCache",allEntries = true)
     @DeleteMapping
+    @ApiOperation(value = "删除套餐接口")
     public R delete(@RequestParam List<Long> ids){
         setmealService.removeWithDish(ids);
         return R.success("套餐删除成功");
@@ -94,6 +101,7 @@ public class SetmealController {
     /**
      * 查询套餐
      */
+    @ApiOperation(value = "查询套餐接口")
     @Cacheable(value = "setmealCache",key = "#setmeal.categoryId+'_'+#setmeal.status",unless = "#result.data==null")
     @GetMapping("/list")
     public R list(Setmeal setmeal){
@@ -108,6 +116,7 @@ public class SetmealController {
      * 套餐批量起售
      * 套餐批量停售
      */
+    @ApiOperation(value = "修改套餐状态接口")
     @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping("/status/{a}")
     public R status(@PathVariable Integer a,@RequestParam List<Long> ids){
